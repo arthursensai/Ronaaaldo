@@ -593,27 +593,89 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js"></script>
     <script>
         let currentTimer = null;
+        let breakTimer = null;
         let timeLeft = 50 * 60; // 50 minutes in seconds
+        let breakTimeLeft = 10 * 60; // 10 minutes break
         let isRunning = false;
+        let isOnBreak = false;
         let currentSubjectName = '';
+        let currentSessionId = null;
         let originalTitle = document.title;
+        let completedSessions = new Set();
+
+        // Audio context for sounds
+        let audioContext;
+        let startSound, endSound, breakSound;
+
+        // Initialize audio
+        function initAudio() {
+            if (!audioContext) {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                createSounds();
+            }
+        }
+
+        function createSounds() {
+            // Create start sound (high pitch beep)
+            startSound = createBeep(800, 0.2, 'triangle');
+            // Create end sound (lower pitch, longer beep)
+            endSound = createBeep(400, 0.5, 'sine');
+            // Create break sound (gentle notification)
+            breakSound = createBeep(600, 0.3, 'triangle');
+        }
+
+        function createBeep(frequency, duration, type = 'sine') {
+            return function() {
+                if (!audioContext) return;
+                
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = frequency;
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + duration);
+            };
+        }
+
+        function playSound(soundFunc) {
+            try {
+                if (audioContext && audioContext.state === 'suspended') {
+                    audioContext.resume();
+                }
+                soundFunc();
+            } catch (error) {
+                console.log('Audio not available:', error);
+            }
+        }
 
         // Initialize Twemoji
         twemoji.parse(document.body);
 
-        function selectSession(element, subject, duration) {
+        function selectSession(element, subject, duration, sessionId) {
+            // Don't select completed sessions
+            if (completedSessions.has(sessionId)) {
+                return;
+            }
+
             // Remove active class from all sessions
             document.querySelectorAll('.time-slot').forEach(slot => {
-                slot.style.transform = 'scale(1)';
-                slot.style.boxShadow = 'none';
+                slot.classList.remove('active');
             });
             
-            // Highlight selected session
-            element.style.transform = 'scale(1.02)';
-            element.style.boxShadow = '0 8px 25px rgba(0,0,0,0.15)';
+            // Add active class to selected session
+            element.classList.add('active');
             
             // Set current session
             currentSubjectName = subject;
+            currentSessionId = sessionId;
             timeLeft = duration * 60;
             updateTimerDisplay();
             document.getElementById('currentSubject').innerHTML = `<i class="fas fa-book"></i> ${subject} - Let's master this topic! <i class="fas fa-bullseye"></i>`;
@@ -637,14 +699,27 @@
             }
         }
 
+        function updateBreakTimerDisplay() {
+            const minutes = Math.floor(breakTimeLeft / 60);
+            const seconds = breakTimeLeft % 60;
+            
+            const display = `00:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            document.getElementById('breakTimerDisplay').textContent = display;
+            document.title = `[${display}] Break Time - Rest & Recharge`;
+        }
+
         function startTimer() {
             if (!currentSubjectName) {
                 alert('🔔 Please select a study session first!');
                 return;
             }
+
+            initAudio(); // Initialize audio on first user interaction
             
             if (!isRunning) {
                 isRunning = true;
+                playSound(startSound);
+                
                 currentTimer = setInterval(() => {
                     timeLeft--;
                     updateTimerDisplay();
@@ -652,9 +727,76 @@
                     if (timeLeft <= 0) {
                         clearInterval(currentTimer);
                         isRunning = false;
+                        playSound(endSound);
+                        
+                        // Mark current session as completed
+                        if (currentSessionId !== null) {
+                            markSessionCompleted(currentSessionId);
+                        }
+                        
                         document.title = `✅ ${currentSubjectName} Complete!`;
-                        alert(`🎉 Great job! You've completed your ${currentSubjectName} session! Time for a break! ☕`);
-                        nextSession();
+                        
+                        // Start break automatically
+                        startBreak();
+                    }
+                }, 1000);
+            }
+        }
+
+        function startBreak() {
+            isOnBreak = true;
+            breakTimeLeft = 10 * 60; // Reset break time
+            
+            // Show break timer
+            document.getElementById('breakTimer').classList.add('active');
+            document.getElementById('currentSession').style.display = 'none';
+            
+            playSound(breakSound);
+            updateBreakTimerDisplay();
+            
+            breakTimer = setInterval(() => {
+                breakTimeLeft--;
+                updateBreakTimerDisplay();
+                
+                if (breakTimeLeft <= 0) {
+                    clearInterval(breakTimer);
+                    endBreak();
+                }
+            }, 1000);
+        }
+
+        function endBreak() {
+            isOnBreak = false;
+            
+            // Hide break timer
+            document.getElementById('breakTimer').classList.remove('active');
+            document.getElementById('currentSession').style.display = 'block';
+            
+            // Find next uncompleted session
+            findNextSession();
+            
+            document.title = 'Ready for next session!';
+        }
+
+        function skipBreak() {
+            if (breakTimer) {
+                clearInterval(breakTimer);
+            }
+            endBreak();
+        }
+
+        function pauseBreak() {
+            if (breakTimer) {
+                clearInterval(breakTimer);
+                breakTimer = null;
+            } else {
+                breakTimer = setInterval(() => {
+                    breakTimeLeft--;
+                    updateBreakTimerDisplay();
+                    
+                    if (breakTimeLeft <= 0) {
+                        clearInterval(breakTimer);
+                        endBreak();
                     }
                 }, 1000);
             }
@@ -668,29 +810,82 @@
             }
         }
 
-        function nextSession() {
+        function resetTimer() {
             if (currentTimer) {
                 clearInterval(currentTimer);
             }
+            if (breakTimer) {
+                clearInterval(breakTimer);
+            }
+            
             isRunning = false;
-            
-            // Find next session (simplified - just resets to ready state)
-            currentSubjectName = '';
+            isOnBreak = false;
             timeLeft = 50 * 60;
-            updateTimerDisplay();
-            document.getElementById('currentSubject').innerHTML = 'Ready for your next study session! <i class="fas fa-star"></i>';
+            breakTimeLeft = 10 * 60;
             
-            // Remove highlights
+            updateTimerDisplay();
+            updateBreakTimerDisplay();
+            
+            document.getElementById('breakTimer').classList.remove('active');
+            document.getElementById('currentSession').style.display = 'block';
+        }
+
+        function nextSession() {
+            resetTimer();
+            findNextSession();
+        }
+
+        function findNextSession() {
+            // Remove current active session
             document.querySelectorAll('.time-slot').forEach(slot => {
-                slot.style.transform = 'scale(1)';
-                slot.style.boxShadow = 'none';
+                slot.classList.remove('active');
             });
+            
+            // Find next uncompleted session
+            const allSessions = document.querySelectorAll('.time-slot');
+            let nextSession = null;
+            
+            for (let session of allSessions) {
+                const sessionId = parseInt(session.getAttribute('data-session-id'));
+                if (!completedSessions.has(sessionId)) {
+                    nextSession = session;
+                    break;
+                }
+            }
+            
+            if (nextSession) {
+                const sessionId = parseInt(nextSession.getAttribute('data-session-id'));
+                const subject = nextSession.querySelector('.subject').textContent.trim();
+                const duration = parseInt(nextSession.querySelector('.duration').textContent);
+                selectSession(nextSession, subject, duration, sessionId);
+            } else {
+                currentSubjectName = '';
+                currentSessionId = null;
+                updateTimerDisplay();
+                document.getElementById('currentSubject').innerHTML = 'All sessions completed! 🎉';
+            }
+        }
+
+        function markSessionCompleted(sessionId) {
+            completedSessions.add(sessionId);
+            const sessionElement = document.querySelector(`[data-session-id="${sessionId}"]`);
+            if (sessionElement) {
+                sessionElement.classList.add('completed');
+            }
+        }
+
+        function markComplete(event, sessionId) {
+            event.stopPropagation();
+            markSessionCompleted(sessionId);
+            if (sessionId === currentSessionId) {
+                nextSession();
+            }
         }
 
         // Initialize timer display
         updateTimerDisplay();
 
-        // Add some motivational messages
+        // Motivational messages
         const motivationalMessages = [
             "You're doing amazing! Keep going! 💪",
             "Every minute counts towards your success! 🌟",
@@ -706,11 +901,10 @@
             }
         }, 300000); // Every 5 minutes
 
-        // Handle page visibility change to pause timer when tab is not active
+        // Handle page visibility change
         document.addEventListener('visibilitychange', function() {
             if (document.hidden && isRunning) {
-                // Optional: You can choose to pause when tab is hidden
-                // pauseTimer();
+                pauseTimer();
             }
         });
     </script>
