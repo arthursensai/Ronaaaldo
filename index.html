@@ -77,6 +77,85 @@
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
+        .time-slot.completed {
+            opacity: 0.7;
+            background: linear-gradient(45deg, #48bb78, #68d391) !important;
+            position: relative;
+        }
+
+        .time-slot.completed::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .time-slot.completed::before {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #22543d;
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 3;
+        }
+
+        .time-slot.active {
+            border: 3px solid #667eea;
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(102, 126, 234, 0.6); }
+            100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.4); }
+        }
+
+        .break-timer {
+            background: linear-gradient(45deg, #f093fb, #f5576c);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+
+        .break-timer.active {
+            display: block;
+        }
+
+        .mark-complete-btn {
+            background: linear-gradient(45deg, #48bb78, #68d391);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .mark-complete-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .session-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
         .math { background: linear-gradient(45deg, #ff9a9e, #fecfef); }
         .english { background: linear-gradient(45deg, #a8edea, #fed6e3); }
         .svt { background: linear-gradient(45deg, #d299c2, #fef9d7); }
@@ -228,104 +307,220 @@
                 <button class="btn" onclick="startTimer()"><i class="fas fa-play fa-icon"></i>Start Session</button>
                 <button class="btn btn-secondary" onclick="pauseTimer()"><i class="fas fa-pause fa-icon"></i>Pause</button>
                 <button class="btn" onclick="nextSession()"><i class="fas fa-forward fa-icon"></i>Next Subject</button>
+                <button class="btn" onclick="resetTimer()"><i class="fas fa-redo fa-icon"></i>Reset</button>
+            </div>
+        </div>
+
+        <div class="break-timer" id="breakTimer">
+            <h3><i class="fas fa-coffee fa-icon"></i>Break Time!</h3>
+            <div class="timer-display" id="breakTimerDisplay">00:10:00</div>
+            <p>Take a well-deserved break! <i class="fas fa-smile"></i></p>
+            <div class="controls">
+                <button class="btn" onclick="skipBreak()"><i class="fas fa-forward fa-icon"></i>Skip Break</button>
+                <button class="btn btn-secondary" onclick="pauseBreak()"><i class="fas fa-pause fa-icon"></i>Pause Break</button>
             </div>
         </div>
 
         <div class="schedule-section">
             <h2 class="section-title"><i class="fas fa-moon fa-icon"></i>Night Study Session (8:30 PM - 6:20 AM)</h2>
             
-            <div class="time-slot english" onclick="selectSession(this, 'English', 50)">
-                <span class="time">20:30 - 21:20</span>
-                <span class="subject"><i class="fas fa-book-open subject-icon"></i>English</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot english" onclick="selectSession(this, 'English', 50, 0)" data-session-id="0">
+                <div class="session-controls">
+                    <span class="time">20:30 - 21:20</span>
+                    <span class="subject"><i class="fas fa-book-open subject-icon"></i>English</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 0)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50)">
-                <span class="time">21:30 - 22:20</span>
-                <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50, 1)" data-session-id="1">
+                <div class="session-controls">
+                    <span class="time">21:30 - 22:20</span>
+                    <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 1)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50)">
-                <span class="time">22:30 - 23:20</span>
-                <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (SVT)</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50, 2)" data-session-id="2">
+                <div class="session-controls">
+                    <span class="time">22:30 - 23:20</span>
+                    <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (SVT)</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 2)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50)">
-                <span class="time">23:30 - 00:20</span>
-                <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50, 3)" data-session-id="3">
+                <div class="session-controls">
+                    <span class="time">23:30 - 00:20</span>
+                    <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 3)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50)">
-                <span class="time">00:30 - 01:20</span>
-                <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50, 4)" data-session-id="4">
+                <div class="session-controls">
+                    <span class="time">00:30 - 01:20</span>
+                    <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 4)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50)">
-                <span class="time">01:30 - 02:20</span>
-                <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50, 5)" data-session-id="5">
+                <div class="session-controls">
+                    <span class="time">01:30 - 02:20</span>
+                    <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 5)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50)">
-                <span class="time">02:30 - 03:20</span>
-                <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (SVT)</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50, 6)" data-session-id="6">
+                <div class="session-controls">
+                    <span class="time">02:30 - 03:20</span>
+                    <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (SVT)</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 6)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50)">
-                <span class="time">03:30 - 04:20</span>
-                <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50, 7)" data-session-id="7">
+                <div class="session-controls">
+                    <span class="time">03:30 - 04:20</span>
+                    <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 7)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot english" onclick="selectSession(this, 'English', 50)">
-                <span class="time">04:30 - 05:20</span>
-                <span class="subject"><i class="fas fa-book-open subject-icon"></i>English</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot english" onclick="selectSession(this, 'English', 50, 8)" data-session-id="8">
+                <div class="session-controls">
+                    <span class="time">04:30 - 05:20</span>
+                    <span class="subject"><i class="fas fa-book-open subject-icon"></i>English</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 8)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50)">
-                <span class="time">05:30 - 06:20</span>
-                <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50, 9)" data-session-id="9">
+                <div class="session-controls">
+                    <span class="time">05:30 - 06:20</span>
+                    <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 9)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
         </div>
 
         <div class="schedule-section">
             <h2 class="section-title"><i class="fas fa-sun fa-icon"></i>Afternoon Balance Session (3:00 PM - 7:50 PM)</h2>
             
-            <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50)">
-                <span class="time">15:00 - 15:50</span>
-                <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy (Session 2)</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50, 10)" data-session-id="10">
+                <div class="session-controls">
+                    <span class="time">15:00 - 15:50</span>
+                    <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy (Session 2)</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 10)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50)">
-                <span class="time">16:00 - 16:50</span>
-                <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics (Session 3)</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50, 11)" data-session-id="11">
+                <div class="session-controls">
+                    <span class="time">16:00 - 16:50</span>
+                    <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics (Session 3)</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 11)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50)">
-                <span class="time">17:00 - 17:50</span>
-                <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy (Session 3)</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50, 12)" data-session-id="12">
+                <div class="session-controls">
+                    <span class="time">17:00 - 17:50</span>
+                    <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy (Session 3)</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 12)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot english" onclick="selectSession(this, 'English', 50)">
-                <span class="time">18:00 - 18:50</span>
-                <span class="subject"><i class="fas fa-book-open subject-icon"></i>English (Session 3)</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot english" onclick="selectSession(this, 'English', 50, 13)" data-session-id="13">
+                <div class="session-controls">
+                    <span class="time">18:00 - 18:50</span>
+                    <span class="subject"><i class="fas fa-book-open subject-icon"></i>English (Session 3)</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 13)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
 
-            <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50)">
-                <span class="time">19:00 - 19:50</span>
-                <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (Session 3)</span>
-                <span class="duration">50 min</span>
+            <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50, 14)" data-session-id="14">
+                <div class="session-controls">
+                    <span class="time">19:00 - 19:50</span>
+                    <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (Session 3)</span>
+                </div>
+                <div class="session-controls">
+                    <span class="duration">50 min</span>
+                    <button class="mark-complete-btn" onclick="markComplete(event, 14)">
+                        <i class="fas fa-check"></i> Done
+                    </button>
+                </div>
             </div>
         </div>
 
