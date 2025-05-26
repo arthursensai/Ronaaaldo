@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ultimate Study Schedule 📚</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.css">
     <style>
         * {
             margin: 0;
@@ -189,8 +191,18 @@
             background: linear-gradient(45deg, #ed8936, #f6ad55);
         }
 
-        .emoji {
+        .emoji-icon {
             font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        .fa-icon {
+            font-size: 1.2rem;
+            margin-right: 8px;
+        }
+
+        .subject-icon {
+            font-size: 1.3rem;
             margin-right: 10px;
         }
 
@@ -204,133 +216,133 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🎯 Ultimate Study Schedule 📚</h1>
-            <p>Master your subjects with this awesome study plan! 🚀</p>
+            <h1><i class="fas fa-bullseye subject-icon"></i>Ultimate Study Schedule<i class="fas fa-book subject-icon"></i></h1>
+            <p>Master your subjects with this awesome study plan!<i class="fas fa-rocket" style="margin-left: 10px;"></i></p>
         </div>
 
         <div class="current-session" id="currentSession">
-            <h3>📍 Current Study Session</h3>
+            <h3><i class="fas fa-map-marker-alt fa-icon"></i>Current Study Session</h3>
             <div class="timer-display" id="timerDisplay">00:50:00</div>
-            <p id="currentSubject">Ready to start your study journey! 🌟</p>
+            <p id="currentSubject">Ready to start your study journey!<i class="fas fa-star" style="margin-left: 8px;"></i></p>
             <div class="controls">
-                <button class="btn" onclick="startTimer()">▶️ Start Session</button>
-                <button class="btn btn-secondary" onclick="pauseTimer()">⏸️ Pause</button>
-                <button class="btn" onclick="nextSession()">⏭️ Next Subject</button>
+                <button class="btn" onclick="startTimer()"><i class="fas fa-play fa-icon"></i>Start Session</button>
+                <button class="btn btn-secondary" onclick="pauseTimer()"><i class="fas fa-pause fa-icon"></i>Pause</button>
+                <button class="btn" onclick="nextSession()"><i class="fas fa-forward fa-icon"></i>Next Subject</button>
             </div>
         </div>
 
         <div class="schedule-section">
-            <h2 class="section-title">🌙 Night Study Session (8:30 PM - 6:20 AM)</h2>
+            <h2 class="section-title"><i class="fas fa-moon fa-icon"></i>Night Study Session (8:30 PM - 6:20 AM)</h2>
             
             <div class="time-slot english" onclick="selectSession(this, 'English', 50)">
                 <span class="time">20:30 - 21:20</span>
-                <span class="subject">📖 English</span>
+                <span class="subject"><i class="fas fa-book-open subject-icon"></i>English</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50)">
                 <span class="time">21:30 - 22:20</span>
-                <span class="subject">🔢 Mathematics</span>
+                <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50)">
                 <span class="time">22:30 - 23:20</span>
-                <span class="subject">🧬 Biology (SVT)</span>
+                <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (SVT)</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50)">
                 <span class="time">23:30 - 00:20</span>
-                <span class="subject">⚡ Physics</span>
+                <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50)">
                 <span class="time">00:30 - 01:20</span>
-                <span class="subject">🤔 Philosophy</span>
+                <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50)">
                 <span class="time">01:30 - 02:20</span>
-                <span class="subject">🔢 Mathematics</span>
+                <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50)">
                 <span class="time">02:30 - 03:20</span>
-                <span class="subject">🧬 Biology (SVT)</span>
+                <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (SVT)</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50)">
                 <span class="time">03:30 - 04:20</span>
-                <span class="subject">⚡ Physics</span>
+                <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot english" onclick="selectSession(this, 'English', 50)">
                 <span class="time">04:30 - 05:20</span>
-                <span class="subject">📖 English</span>
+                <span class="subject"><i class="fas fa-book-open subject-icon"></i>English</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot math" onclick="selectSession(this, 'Mathematics', 50)">
                 <span class="time">05:30 - 06:20</span>
-                <span class="subject">🔢 Mathematics</span>
+                <span class="subject"><i class="fas fa-calculator subject-icon"></i>Mathematics</span>
                 <span class="duration">50 min</span>
             </div>
         </div>
 
         <div class="schedule-section">
-            <h2 class="section-title">☀️ Afternoon Balance Session (3:00 PM - 7:50 PM)</h2>
+            <h2 class="section-title"><i class="fas fa-sun fa-icon"></i>Afternoon Balance Session (3:00 PM - 7:50 PM)</h2>
             
             <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50)">
                 <span class="time">15:00 - 15:50</span>
-                <span class="subject">🤔 Philosophy (Session 2)</span>
+                <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy (Session 2)</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot physics" onclick="selectSession(this, 'Physics', 50)">
                 <span class="time">16:00 - 16:50</span>
-                <span class="subject">⚡ Physics (Session 3)</span>
+                <span class="subject"><i class="fas fa-bolt subject-icon"></i>Physics (Session 3)</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot philosophy" onclick="selectSession(this, 'Philosophy', 50)">
                 <span class="time">17:00 - 17:50</span>
-                <span class="subject">🤔 Philosophy (Session 3)</span>
+                <span class="subject"><i class="fas fa-brain subject-icon"></i>Philosophy (Session 3)</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot english" onclick="selectSession(this, 'English', 50)">
                 <span class="time">18:00 - 18:50</span>
-                <span class="subject">📖 English (Session 3)</span>
+                <span class="subject"><i class="fas fa-book-open subject-icon"></i>English (Session 3)</span>
                 <span class="duration">50 min</span>
             </div>
 
             <div class="time-slot svt" onclick="selectSession(this, 'Biology (SVT)', 50)">
                 <span class="time">19:00 - 19:50</span>
-                <span class="subject">🧬 Biology (Session 3)</span>
+                <span class="subject"><i class="fas fa-dna subject-icon"></i>Biology (Session 3)</span>
                 <span class="duration">50 min</span>
             </div>
         </div>
 
         <div class="schedule-section">
-            <h2 class="section-title">📊 Final Study Distribution</h2>
+            <h2 class="section-title"><i class="fas fa-chart-bar fa-icon"></i>Final Study Distribution</h2>
             <div class="summary-table">
                 <table>
                     <thead>
                         <tr>
-                            <th>Subject 📚</th>
-                            <th>Total Hours ⏰</th>
-                            <th>Progress 📈</th>
+                            <th><i class="fas fa-book fa-icon"></i>Subject</th>
+                            <th><i class="fas fa-clock fa-icon"></i>Total Hours</th>
+                            <th><i class="fas fa-chart-line fa-icon"></i>Progress</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr>
-                            <td>🔢 Mathematics</td>
+                            <td><i class="fas fa-calculator subject-icon"></i>Mathematics</td>
                             <td>3 Hours</td>
                             <td>
                                 <div class="progress-bar">
@@ -339,7 +351,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>🧬 Biology (SVT)</td>
+                            <td><i class="fas fa-dna subject-icon"></i>Biology (SVT)</td>
                             <td>3 Hours</td>
                             <td>
                                 <div class="progress-bar">
@@ -348,7 +360,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>⚡ Physics</td>
+                            <td><i class="fas fa-bolt subject-icon"></i>Physics</td>
                             <td>3 Hours</td>
                             <td>
                                 <div class="progress-bar">
@@ -357,7 +369,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>📖 English</td>
+                            <td><i class="fas fa-book-open subject-icon"></i>English</td>
                             <td>3 Hours</td>
                             <td>
                                 <div class="progress-bar">
@@ -366,7 +378,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>🤔 Philosophy</td>
+                            <td><i class="fas fa-brain subject-icon"></i>Philosophy</td>
                             <td>3 Hours</td>
                             <td>
                                 <div class="progress-bar">
@@ -378,16 +390,21 @@
                 </table>
             </div>
             <p style="text-align: center; margin-top: 20px; font-size: 1.2rem; color: #667eea; font-weight: bold;">
-                🎉 Total Study Time: 15 Hours | You've got this! 💪
+                <i class="fas fa-trophy" style="margin-right: 10px;"></i>Total Study Time: 15 Hours | You've got this!<i class="fas fa-fist-raised" style="margin-left: 10px;"></i>
             </p>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/twemoji.min.js"></script>
     <script>
         let currentTimer = null;
         let timeLeft = 50 * 60; // 50 minutes in seconds
         let isRunning = false;
         let currentSubjectName = '';
+        let originalTitle = document.title;
+
+        // Initialize Twemoji
+        twemoji.parse(document.body);
 
         function selectSession(element, subject, duration) {
             // Remove active class from all sessions
@@ -404,7 +421,7 @@
             currentSubjectName = subject;
             timeLeft = duration * 60;
             updateTimerDisplay();
-            document.getElementById('currentSubject').textContent = `📚 ${subject} - Let's master this topic! 🎯`;
+            document.getElementById('currentSubject').innerHTML = `<i class="fas fa-book"></i> ${subject} - Let's master this topic! <i class="fas fa-bullseye"></i>`;
         }
 
         function updateTimerDisplay() {
@@ -414,6 +431,15 @@
             
             const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
             document.getElementById('timerDisplay').textContent = display;
+            
+            // Update page title with timer
+            if (isRunning && currentSubjectName) {
+                document.title = `[${display}] ${currentSubjectName} - Study Timer`;
+            } else if (currentSubjectName) {
+                document.title = `${currentSubjectName} - Ready to Study`;
+            } else {
+                document.title = originalTitle;
+            }
         }
 
         function startTimer() {
@@ -431,6 +457,7 @@
                     if (timeLeft <= 0) {
                         clearInterval(currentTimer);
                         isRunning = false;
+                        document.title = `✅ ${currentSubjectName} Complete!`;
                         alert(`🎉 Great job! You've completed your ${currentSubjectName} session! Time for a break! ☕`);
                         nextSession();
                     }
@@ -442,6 +469,7 @@
             if (isRunning) {
                 clearInterval(currentTimer);
                 isRunning = false;
+                document.title = `⏸️ ${currentSubjectName} - Paused`;
             }
         }
 
@@ -455,7 +483,7 @@
             currentSubjectName = '';
             timeLeft = 50 * 60;
             updateTimerDisplay();
-            document.getElementById('currentSubject').textContent = 'Ready for your next study session! 🌟';
+            document.getElementById('currentSubject').innerHTML = 'Ready for your next study session! <i class="fas fa-star"></i>';
             
             // Remove highlights
             document.querySelectorAll('.time-slot').forEach(slot => {
@@ -482,6 +510,14 @@
                 console.log(randomMessage);
             }
         }, 300000); // Every 5 minutes
+
+        // Handle page visibility change to pause timer when tab is not active
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && isRunning) {
+                // Optional: You can choose to pause when tab is hidden
+                // pauseTimer();
+            }
+        });
     </script>
 </body>
 </html>
